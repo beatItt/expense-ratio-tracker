@@ -3,6 +3,7 @@ package com.learn.expensetracker.repositories;
 import com.learn.expensetracker.domain.User;
 import com.learn.expensetracker.exceptions.EtAuthException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -49,7 +50,20 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findByEmailAndPassword(String email, String password) throws EtAuthException {
-        return null;
+
+        try {
+
+            User user = jdbcTemplate.queryForObject(SQL_FIND_BY_EMAIL, userRowMapper, email);
+            //check if pwd is same as passed
+            if (!password.equals(user.getPassword())) {
+                throw new EtAuthException("Invalid password/email");
+            }
+
+            //means correct details
+            return  user;
+        }catch (EmptyResultDataAccessException e) {//
+            throw new EtAuthException("invalid email/password");
+        }
     }
 
     @Override

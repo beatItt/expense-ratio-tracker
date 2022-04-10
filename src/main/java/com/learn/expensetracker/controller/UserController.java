@@ -20,6 +20,17 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @PostMapping("/login")
+    public  ResponseEntity<Map<String,String>> loginUser(@RequestBody Map<String,String> userMap){
+        String email=userMap.get("email");
+        String password=userMap.get("password");
+        User user=userService.validateUser(email,password);
+        Map<String, String> map=new HashMap<>();
+        map.put("message","logged in successfully");
+        return  new ResponseEntity<>(map, HttpStatus.OK);
+
+    }
+
     @PostMapping("/register")
     public ResponseEntity<Map<String,String>> registerUser(@RequestBody Map<String,String> userMap){ //the json reqBody data auto conv to java Map obj by @RequestBody,
         // but format of json from client side(postman) and the java obj mentioned with @RequestBody ie Map<String,Object>
@@ -32,7 +43,7 @@ public class UserController {
         //return firstName+", "+lastName; //jackson returning conv java obj to json(auto included in spring web starter)
         User user=userService.registerUser(firstName,lastName,email,password);
         Map<String,String> map=new HashMap<>();//map is dummy for now, later will have jwt key value
-        map.put("message","successful");
+        map.put("message","successfully registered");
         return new ResponseEntity<>(map, HttpStatus.OK);//can set programmatically response headers with ResponseEntity
 
     }
