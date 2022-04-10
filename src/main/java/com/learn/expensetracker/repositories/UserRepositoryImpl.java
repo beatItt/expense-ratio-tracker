@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -31,7 +32,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Integer create(String firstName, String lastName, String email, String password) throws EtAuthException {
-
+        String hashedPassword=BCrypt.hashpw(password,BCrypt.gensalt(10));
         try {
             KeyHolder keyHolder = new GeneratedKeyHolder();//jdbcTemplate update method does not return obj, use keyHolder
             jdbcTemplate.update(connection -> {
@@ -39,7 +40,7 @@ public class UserRepositoryImpl implements UserRepository {
                 ps.setString(1, firstName);
                 ps.setString(2, lastName);
                 ps.setString(3, email);
-                ps.setString(4, password);
+                ps.setString(4, hashedPassword);
                 return ps;
             }, keyHolder);
             return (Integer) keyHolder.getKeys().get("USER_ID");//get key for user_id specifically
@@ -55,7 +56,7 @@ public class UserRepositoryImpl implements UserRepository {
 
             User user = jdbcTemplate.queryForObject(SQL_FIND_BY_EMAIL, userRowMapper, email);
             //check if pwd is same as passed
-            if (!password.equals(user.getPassword())) {
+            if (!BCrypt.checkpw(password,user.getPassword())) {
                 throw new EtAuthException("Invalid password/email");
             }
 
