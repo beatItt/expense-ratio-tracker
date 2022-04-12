@@ -33,6 +33,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Integer create(String firstName, String lastName, String email, String password) throws EtAuthException {
         String hashedPassword=BCrypt.hashpw(password,BCrypt.gensalt(10));
+        //genSalt :random bytes so that 2 ppl with same PlainText pwd can have their pwd stored as different hashes
         try {
             KeyHolder keyHolder = new GeneratedKeyHolder();//jdbcTemplate update method does not return obj, use keyHolder
             jdbcTemplate.update(connection -> {
