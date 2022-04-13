@@ -41,6 +41,7 @@ public class AuthFilter extends GenericFilterBean {
                     httpRequest.setAttribute("userId", Integer.parseInt(claims.get("userId").toString()));
                     //can access userId anywhere from request
 
+
                 } catch (Exception e) {
                     System.out.println(e);
                     httpResponse.sendError(HttpStatus.FORBIDDEN.value(), "invalid/expired token");
